@@ -250,8 +250,7 @@ class _PageWidgetState extends State<_PageWidget> {
                                   alignment: Alignment.centerLeft,
                                   child: Wrap(
                                     children: <Widget>[
-                                      Text(widget.page.list[index].title,
-                                          style: TextStyle(fontSize: 12.0)),
+                                      Text(widget.page.list[index].title),
                                       Text(
                                         widget.page.list[index].digest,
                                         style: TextStyle(
