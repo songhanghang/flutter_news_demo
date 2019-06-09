@@ -5,14 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
-
 Dio dio = Dio();
 
 void main() {
-//  debugPaintSizeEnabled = true;
-//  debugPaintPointersEnabled = true;
-//  debugPaintLayerBordersEnabled = true;
-//  debugRepaintRainbowEnabled = true;
   runApp(MyApp());
 }
 
@@ -21,7 +16,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Flutter News Demo',
       home: ScrollableTabsDemo(),
       debugShowCheckedModeBanner: true,
       debugShowMaterialGrid: false,
@@ -33,7 +28,6 @@ class _Page {
   _Page({this.text, this.key})
       : this.url =
             "https://3g.163.com/touch/reconstruct/article/list/$key/0-20.html";
-
   final String text;
   final String key;
   final String url;
@@ -174,7 +168,6 @@ class _PageWidget extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    print("createState " + page.text);
     return _PageWidgetState();
   }
 }
@@ -183,26 +176,20 @@ class _PageWidgetState extends State<_PageWidget> {
   @override
   void initState() {
     super.initState();
-    print("初始化 start ....");
     _refreshData();
-    print("初始化 end ....");
   }
 
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
 
   Future _refreshData() async {
-    print("state 刷新 ....");
     Response response = await widget.page._request();
-    print("await  .... ");
     setState(() {});
     return response;
   }
 
   @override
   Widget build(BuildContext context) {
-    print(" build aigin ....");
-
     return RefreshIndicator(
       key: _refreshIndicatorKey,
       onRefresh: _refreshData,
