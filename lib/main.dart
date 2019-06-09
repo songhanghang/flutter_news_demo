@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+
 Dio dio = Dio();
 
 void main() {
@@ -12,22 +13,17 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter News Demo',
       home: ScrollableTabsDemo(),
-      debugShowCheckedModeBanner: true,
-      debugShowMaterialGrid: false,
     );
   }
 }
 
 class _Page {
   _Page({this.text, this.key})
-      : this.url =
-            "https://3g.163.com/touch/reconstruct/article/list/$key/0-20.html";
+      : this.url = "https://3g.163.com/touch/reconstruct/article/list/$key/0-20.html";
   final String text;
   final String key;
   final String url;
@@ -80,10 +76,10 @@ List<_Page> _allPages = <_Page>[
 
 class ScrollableTabsDemo extends StatefulWidget {
   @override
-  ScrollableTabsDemoState createState() => ScrollableTabsDemoState();
+  _ScrollableTabsState createState() => _ScrollableTabsState();
 }
 
-class ScrollableTabsDemoState extends State<ScrollableTabsDemo>
+class _ScrollableTabsState extends State<ScrollableTabsDemo>
     with SingleTickerProviderStateMixin {
   TabController _controller;
 
@@ -103,17 +99,11 @@ class ScrollableTabsDemoState extends State<ScrollableTabsDemo>
     return ShapeDecoration(
       shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
-            side: BorderSide(
-              color: Colors.white70,
-              width: 1.5,
-            ),
+            side: BorderSide(color: Colors.white70, width: 1.5),
           ) +
           const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(4.0)),
-            side: BorderSide(
-              color: Colors.transparent,
-              width: 8.0,
-            ),
+            side: BorderSide(color: Colors.transparent, width: 8.0),
           ),
     );
   }
@@ -161,7 +151,6 @@ class ScrollableTabsDemoState extends State<ScrollableTabsDemo>
 
 class _PageWidget extends StatefulWidget {
   const _PageWidget(this.page, {Key key}) : super(key: key);
-
   final _Page page;
 
   @override
@@ -171,14 +160,14 @@ class _PageWidget extends StatefulWidget {
 }
 
 class _PageWidgetState extends State<_PageWidget> {
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
+
   @override
   void initState() {
     super.initState();
     _refreshData();
   }
-
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
-      GlobalKey<RefreshIndicatorState>();
 
   Future _refreshData() async {
     Response response = await widget.page._request();
@@ -201,9 +190,7 @@ class _PageWidgetState extends State<_PageWidget> {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   return WebviewScaffold(
                       appBar: AppBar(
-                        title: Text("详情"),
-                        backgroundColor: Colors.red,
-                      ),
+                          title: Text("详情"), backgroundColor: Colors.red),
                       url: widget.page.list[index].url);
                 }));
               },
@@ -239,16 +226,14 @@ class _PageWidgetState extends State<_PageWidget> {
                                       Text(
                                         widget.page.list[index].digest,
                                         style: TextStyle(
-                                          color: Colors.black87,
-                                          fontSize: 10.0,
-                                        ),
+                                            color: Colors.black87,
+                                            fontSize: 10.0),
                                       ),
                                       Text(
                                         widget.page.list[index].time,
                                         style: TextStyle(
-                                          color: Colors.black54,
-                                          fontSize: 8.0,
-                                        ),
+                                            color: Colors.black54,
+                                            fontSize: 8.0),
                                       )
                                     ],
                                   ))))
