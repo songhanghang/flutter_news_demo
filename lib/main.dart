@@ -1,7 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+
+Dio dio = Dio();
 
 void main() {
 //  debugPaintSizeEnabled = true;
@@ -17,7 +22,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      routes: {"new_page": (context) => new NewRoute()},
       home: ScrollableTabsDemo(),
       debugShowCheckedModeBanner: true,
       debugShowMaterialGrid: false,
@@ -25,43 +29,59 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class NewRoute extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("新界面"),
-      ),
-      body: Center(
-        child: Text("新界面内容"),
-      ),
-    );
+class _Page {
+  _Page({this.text, this.key})
+      : this.url =
+            "https://3g.163.com/touch/reconstruct/article/list/$key/0-20.html";
+
+  final String text;
+  final String key;
+  final String url;
+  final List<_News> list = List();
+
+  Future _request() async {
+    Response response = await dio.get(url);
+    String value = response.toString();
+    value = value.substring(9, value.length - 1);
+    Map<String, dynamic> map = json.decode(value);
+    List data = map[key];
+    list.clear();
+    data.forEach((value) {
+      list.add(_News.fromJson(value));
+    });
+    return response;
   }
 }
 
-class _Page {
-  const _Page({this.text, this.url});
-
-  final String text;
+class _News {
+  final String title;
   final String url;
+  final String image;
+  final String digest;
+  final String time;
+
+  _News.fromJson(Map<String, dynamic> json)
+      : title = json["title"],
+        url = json["url"],
+        image = json["imgsrc"],
+        digest = json["digest"],
+        time = json["ptime"];
 }
 
-const List<_Page> _allPages = <_Page>[
-  _Page(text: '新闻'),
-  _Page(text: '娱乐'),
-  _Page(text: '体育'),
-  _Page(text: '财经'),
-  _Page(text: '军事'),
-  _Page(text: '科技'),
-  _Page(text: '手机'),
-  _Page(text: '数码'),
-  _Page(text: '时尚'),
-  _Page(text: '游戏'),
-  _Page(text: '体育'),
-  _Page(text: '健康'),
-  _Page(text: '旅游'),
-  _Page(text: '视频'),
+List<_Page> _allPages = <_Page>[
+  _Page(text: '新闻', key: "BBM54PGAwangning"),
+  _Page(text: '娱乐', key: "BA10TA81wangning"),
+  _Page(text: '体育', key: "BA8E6OEOwangning"),
+  _Page(text: '财经', key: "BA8EE5GMwangning"),
+  _Page(text: '军事', key: "BAI67OGGwangning"),
+  _Page(text: '科技', key: "BA8D4A3Rwangning"),
+  _Page(text: '手机', key: "BAI6I0O5wangning"),
+  _Page(text: '数码', key: "BAI6JOD9wangning"),
+  _Page(text: '时尚', key: "BA8F6ICNwangning"),
+  _Page(text: '游戏', key: "BAI6RHDKwangning"),
+  _Page(text: '教育', key: "BA8FF5PRwangning"),
+  _Page(text: '健康', key: "BDC4QSV3wangning"),
+  _Page(text: '旅游', key: "BEO4GINLwangning"),
 ];
 
 class ScrollableTabsDemo extends StatefulWidget {
@@ -117,7 +137,7 @@ class ScrollableTabsDemoState extends State<ScrollableTabsDemo>
               child: SliverAppBar(
                 title: const Text('News'),
                 pinned: false,
-                backgroundColor: Colors.redAccent,
+                backgroundColor: Colors.red,
                 forceElevated: innerBoxIsScrolled,
                 bottom: TabBar(
                   controller: _controller,
@@ -155,57 +175,101 @@ class _PageWidget extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
     print("createState " + page.text);
-    return _PageWidgetState().._refresh();
+    return _PageWidgetState();
   }
 }
 
 class _PageWidgetState extends State<_PageWidget> {
-  static final List<String> _items = <String>[
-    'A',
-    'B',
-    'C',
-    'D',
-    'E',
-    'F',
-    'G',
-    'H',
-    'I',
-    'J',
-    'K',
-    'L',
-    'M',
-    'N',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    print("初始化 start ....");
+    _refreshData();
+    print("初始化 end ....");
+  }
 
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
 
-  Future<void> _refresh() {
-    final Completer<void> completer = Completer<void>();
-    Timer(const Duration(seconds: 3), () {
-      print("hadRequest = true");
-      completer.complete();
-    });
-    return completer.future.then<void>((_) {});
+  Future _refreshData() async {
+    print("state 刷新 ....");
+    Response response = await widget.page._request();
+    print("await  .... ");
+    setState(() {});
+    return response;
   }
 
   @override
   Widget build(BuildContext context) {
+    print(" build aigin ....");
+
     return RefreshIndicator(
       key: _refreshIndicatorKey,
-      onRefresh: _refresh,
+      onRefresh: _refreshData,
       child: Scrollbar(
         child: ListView.builder(
           padding: kMaterialListPadding,
-          itemCount: _items.length,
+          itemCount: widget.page.list.length,
           itemBuilder: (BuildContext context, int index) {
-            final String item = _items[index];
-            return ListTile(
-              isThreeLine: true,
-              leading: CircleAvatar(child: Text(item)),
-              title: Text('This item represents $item.'),
-              subtitle: const Text(
-                  'Even more additional list item information appears on line three.'),
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return WebviewScaffold(
+                      appBar: AppBar(
+                        title: Text("详情"),
+                        backgroundColor: Colors.red,
+                      ),
+                      url: widget.page.list[index].url);
+                }));
+              },
+              child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Row(
+                    children: <Widget>[
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(3.0),
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Colors.black54,
+                                  offset: Offset(2.0, 2.0),
+                                  blurRadius: 4.0)
+                            ]),
+                        child: Image.network(
+                          widget.page.list[index].image,
+                          width: 140,
+                          height: 80,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Expanded(
+                          flex: 1,
+                          child: Padding(
+                              padding: EdgeInsets.only(left: 10),
+                              child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Wrap(
+                                    children: <Widget>[
+                                      Text(widget.page.list[index].title,
+                                          style: TextStyle(fontSize: 12.0)),
+                                      Text(
+                                        widget.page.list[index].digest,
+                                        style: TextStyle(
+                                          color: Colors.black87,
+                                          fontSize: 10.0,
+                                        ),
+                                      ),
+                                      Text(
+                                        widget.page.list[index].time,
+                                        style: TextStyle(
+                                          color: Colors.black54,
+                                          fontSize: 8.0,
+                                        ),
+                                      )
+                                    ],
+                                  ))))
+                    ],
+                  )),
             );
           },
         ),
