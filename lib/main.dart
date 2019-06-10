@@ -46,6 +46,7 @@ class _Page {
 class _News {
   final String title;
   final String url;
+  final String skpUrl;
   final String image;
   final String digest;
   final String time;
@@ -53,6 +54,7 @@ class _News {
   _News.fromJson(Map<String, dynamic> json)
       : title = json["title"],
         url = json["url"],
+        skpUrl = json["skipURL"],
         image = json["imgsrc"],
         digest = json["digest"],
         time = json["ptime"];
@@ -188,10 +190,13 @@ class _PageWidgetState extends State<_PageWidget> {
             return GestureDetector(
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  String url = widget.page.list[index].url;
+                  if (url.isEmpty) {
+                    url = widget.page.list[index].skpUrl;
+                  }
                   return WebviewScaffold(
-                      appBar: AppBar(
-                          title: Text("详情"), backgroundColor: Colors.red),
-                      url: widget.page.list[index].url);
+                      appBar: AppBar(title: Text("详情"), backgroundColor: Colors.red),
+                      url: url);
                 }));
               },
               child: Padding(
