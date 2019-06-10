@@ -191,7 +191,7 @@ class _PageWidgetState extends State<_PageWidget> {
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
                   String url = widget.page.list[index].url;
-                  if (url.isEmpty) {
+                  if (!url.startsWith("http")) {
                     url = widget.page.list[index].skpUrl;
                   }
                   return WebviewScaffold(
